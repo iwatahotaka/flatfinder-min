@@ -1,0 +1,112 @@
+{
+  "info": {
+    "name": "FlatFinder MIN (Docker + MySQL + Express)",
+    "_postman_id": "fmin-collection-001",
+    "description": "Users / Flats / Messages (+ Auth). All inserts use NOW() for createdAt.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health: /",
+      "request": {"method": "GET","url": "http://localhost:3000/"},
+      "event": [{"listen":"test","script":{"type":"text/javascript","exec":[
+        "pm.test('200',()=>pm.response.to.have.status(200));",
+        "pm.test('ok',()=>pm.expect(pm.response.json().ok).to.eql(true));"
+      ]}}]
+    },
+    {
+      "name": "Health: /db-ping",
+      "request": {"method": "GET","url": "http://localhost:3000/db-ping"},
+      "event": [{"listen":"test","script":{"type":"text/javascript","exec":[
+        "pm.test('200',()=>pm.response.to.have.status(200));",
+        "pm.test('ok',()=>pm.expect(pm.response.json().ok).to.eql(true));",
+        "pm.test('dbTime',()=>pm.expect(pm.response.json()).to.have.property('dbTime'));"
+      ]}}]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "POST /users/register",
+          "request": {
+            "method":"POST",
+            "header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\"email\":\"alice@example.com\",\"password\":\"secret123\",\"first_name\":\"Alice\",\"last_name\":\"Nguyen\"}"},
+            "url":"http://localhost:3000/users/register"
+          },
+          "event":[{"listen":"test","script":{"type":"text/javascript","exec":[
+            "pm.test('201',()=>pm.response.to.have.status(201));",
+            "pm.environment.set('TOKEN', pm.response.json().token||'');",
+            "pm.environment.set('USER_ID',(pm.response.json().user||{}).id||'');"
+          ]}}]
+        },
+        {
+          "name": "POST /users/login",
+          "request": {
+            "method":"POST",
+            "header":[{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\"email\":\"alice@example.com\",\"password\":\"secret123\"}"},
+            "url":"http://localhost:3000/users/login"
+          },
+          "event":[{"listen":"test","script":{"type":"text/javascript","exec":[
+            "pm.test('200',()=>pm.response.to.have.status(200));",
+            "pm.environment.set('TOKEN', pm.response.json().token||'');",
+            "pm.environment.set('USER_ID',((pm.response.json().user)||{}).id||'');"
+          ]}}]
+        },
+        {
+          "name": "GET /users/me",
+          "request": {
+            "method":"GET",
+            "header":[{"key":"Authorization","value":"Bearer {{TOKEN}}"}],
+            "url":"http://localhost:3000/users/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Flats",
+      "item": [
+        {
+          "name": "POST /flats",
+          "request": {
+            "method":"POST",
+            "header":[{"key":"Authorization","value":"Bearer {{TOKEN}}"},{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\"city\":\"Vancouver\",\"street_name\":\"Davie St\",\"street_number\":\"500\",\"area_size\":58,\"has_ac\":true,\"year_built\":2014,\"rent_price\":2350,\"date_available\":\"2025-10-15\"}"},
+            "url":"http://localhost:3000/flats"
+          },
+          "event":[{"listen":"test","script":{"type":"text/javascript","exec":[
+            "pm.test('201',()=>pm.response.to.have.status(201));",
+            "pm.environment.set('FLAT_ID',(pm.response.json().flat||{}).id||'');"
+          ]}}]
+        },
+        {
+          "name": "GET /flats",
+          "request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{TOKEN}}"}],"url":"http://localhost:3000/flats"}
+        },
+        {
+          "name": "GET /flats/:id",
+          "request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{TOKEN}}"}],"url":"http://localhost:3000/flats/{{FLAT_ID}}"}
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "item": [
+        {
+          "name": "POST /flats/:id/messages",
+          "request": {
+            "method":"POST",
+            "header":[{"key":"Authorization","value":"Bearer {{TOKEN}}"},{"key":"Content-Type","value":"application/json"}],
+            "body":{"mode":"raw","raw":"{\"content\":\"Hi! Is a viewing possible this weekend?\"}"},
+            "url":"http://localhost:3000/flats/{{FLAT_ID}}/messages"
+          }
+        },
+        {
+          "name": "GET /flats/:id/messages",
+          "request":{"method":"GET","header":[{"key":"Authorization","value":"Bearer {{TOKEN}}"}],"url":"http://localhost:3000/flats/{{FLAT_ID}}/messages"}
+        }
+      ]
+    }
+  ]
+}
