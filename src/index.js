@@ -6,6 +6,7 @@ const { pool } = require('./db');
 
 const usersRouter = require('./routes/users');
 const flatsRouter = require('./routes/flats');
+const messagesRouter = require('./routes/messages');
 
 const app = express();
 app.use(cors());
@@ -29,5 +30,6 @@ app.get('/db-ping', async (_req, res) => {
 
 app.use('/users', usersRouter);
 app.use('/flats', flatsRouter);
+app.use('/', messagesRouter); // messagesはフルパスで定義
 
 app.listen(PORT, () => console.log(`Server http://localhost:${PORT}`));
