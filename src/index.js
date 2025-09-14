@@ -2,28 +2,17 @@ require('dotenv').config();
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
-const mysql = require('mysql2/promise');
+const { pool } = require('./db');
+
+const usersRouter = require('./routes/users');
+const flatsRouter = require('./routes/flats');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-const {
-  PORT = 3000,
-  MYSQL_HOST = 'mysql',
-  MYSQL_USER = 'root',
-  MYSQL_PASSWORD = 'rootpassword',
-  MYSQL_DB = 'mydb'
-} = process.env;
-
-const pool = mysql.createPool({
-  host: MYSQL_HOST,
-  user: MYSQL_USER,
-  password: MYSQL_PASSWORD,
-  database: MYSQL_DB,
-  waitForConnections: true
-});
+const PORT = process.env.PORT || 3000;
 
 app.get('/', (_req, res) => {
   res.json({ ok: true, service: 'flatfinder-min-app', time: new Date().toISOString() });
@@ -37,5 +26,8 @@ app.get('/db-ping', async (_req, res) => {
     res.status(500).json({ ok: false, error: err.message });
   }
 });
+
+app.use('/users', usersRouter);
+app.use('/flats', flatsRouter);
 
 app.listen(PORT, () => console.log(`Server http://localhost:${PORT}`));
