@@ -4,8 +4,7 @@
 ```bash
 docker compose up --build -d
 ✅ Health Check
-bash
-コードをコピーする
+
 curl -s http://localhost:3000/ | jq .
 curl -s http://localhost:3000/db-ping | jq .
 🛢 Adminer
@@ -21,19 +20,13 @@ Pass: rootpassword
 
 DB: mydb
 
-📌 Teacher's Rule
-Every table must have createdAt TIMESTAMP NOT NULL
-
-All INSERT statements must explicitly use NOW() for createdAt
-
 📚 API Reference
 All INSERT statements must explicitly set
 createdAt TIMESTAMP NOT NULL with NOW() (teacher’s rule).
 Authentication uses Bearer JWT — get a token from /users/register or /users/login.
 
 👤 Auth & Users
-bash
-コードをコピーする
+
 # POST /users/register
 curl -s -X POST http://localhost:3000/users/register \
   -H "Content-Type: application/json" \
@@ -49,8 +42,7 @@ TOKEN="<paste token here>"
 curl -s http://localhost:3000/users/me \
   -H "Authorization: Bearer $TOKEN" | jq .
 🏢 Flats
-bash
-コードをコピーする
+
 # POST /flats
 curl -s -X POST http://localhost:3000/flats \
   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
@@ -65,8 +57,7 @@ curl -s -X PATCH http://localhost:3000/flats/1 \
   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
   -d '{"rent_price":2290,"has_ac":false}' | jq .
 💬 Messages
-bash
-コードをコピーする
+
 # POST /flats/:id/messages
 curl -s -X POST http://localhost:3000/flats/1/messages \
   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
@@ -76,13 +67,12 @@ curl -s -X POST http://localhost:3000/flats/1/messages \
 curl -s http://localhost:3000/flats/1/messages \
   -H "Authorization: Bearer $TOKEN" | jq .
 💓 Health
-bash
-コードをコピーする
+
 curl -s http://localhost:3000/ | jq .
 curl -s http://localhost:3000/db-ping | jq .
 🗃 ER Diagram (Mermaid)
 mermaid
-コードをコピーする
+
 erDiagram
   user_table {
     INT id PK
