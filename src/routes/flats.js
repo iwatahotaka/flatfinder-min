@@ -4,7 +4,7 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-/** 所有者チェック */
+/** owner check */
 async function assertOwnerOrAdmin(user, flatId) {
   const [rows] = await pool.query('SELECT owner_id FROM flat_table WHERE id = ? LIMIT 1', [flatId]);
   const rec = rows[0];
@@ -13,7 +13,7 @@ async function assertOwnerOrAdmin(user, flatId) {
   return { ok: false, status: 403, error: 'Owner or admin only' };
 }
 
-/** GET /flats  一覧 */
+/** GET /flats  list */
 router.get('/', requireAuth, async (_req, res) => {
   try {
     const [rows] = await pool.query(
@@ -26,7 +26,7 @@ router.get('/', requireAuth, async (_req, res) => {
   }
 });
 
-/** GET /flats/:id  詳細 */
+/** GET /flats/:id  detail */
 router.get('/:id', requireAuth, async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -41,7 +41,7 @@ router.get('/:id', requireAuth, async (req, res) => {
   }
 });
 
-/** POST /flats  作成（owner = 自分、createdAt は NOW() 明示） */
+/** POST /flats  create */
 router.post('/', requireAuth, async (req, res) => {
   try {
     const {
@@ -79,7 +79,7 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-/** PATCH /flats/:id  更新（owner or admin） */
+/** PATCH /flats/:id  edit */
 router.patch('/:id', requireAuth, async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -119,7 +119,7 @@ router.patch('/:id', requireAuth, async (req, res) => {
   }
 });
 
-/** DELETE /flats/:id  削除（owner or admin） */
+/** DELETE /flats/:id  delete */
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
     const id = Number(req.params.id);

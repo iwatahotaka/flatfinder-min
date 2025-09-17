@@ -32,7 +32,6 @@ router.post('/register', async (req, res) => {
 
     const password_hash = await bcrypt.hash(password, 10);
 
-    // 先生ルール: createdAt は INSERT 時に NOW() を明示
     const [result] = await pool.query(
       `INSERT INTO user_table (email, password_hash, first_name, last_name, birth_date, is_admin, createdAt)
        VALUES (?, ?, ?, ?, ?, 0, NOW())`,
@@ -101,7 +100,7 @@ router.post('/login', async (req, res) => {
 });
 
 /**
- * GET /users/me (要ログイン)
+ * GET /users/me
  */
 router.get('/me', requireAuth, async (req, res) => {
   try {
@@ -117,10 +116,7 @@ router.get('/me', requireAuth, async (req, res) => {
 });
 
 /**
- * GET /users (admin only)
- * - 普通ユーザー: 403 Forbidden を返す（これをスクショ）
- * - 管理者: ユーザー一覧を返す
- */
+ * GET /users (admin only) */
 router.get('/', requireAuth, async (req, res) => {
   try {
     if (!req.user || !req.user.is_admin) {
