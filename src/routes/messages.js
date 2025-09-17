@@ -4,7 +4,7 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-/** 所有者チェック（flat owner or admin） */
+/** owner check */
 async function assertOwnerOrAdmin(user, flatId) {
   const [rows] = await pool.query('SELECT owner_id FROM flat_table WHERE id = ? LIMIT 1', [flatId]);
   const rec = rows[0];
@@ -13,13 +13,13 @@ async function assertOwnerOrAdmin(user, flatId) {
   return { ok: false, status: 403, error: 'Owner or admin only' };
 }
 
-/** 送信者本人チェック */
+/** sender check */
 function assertSenderSelf(user, senderId) {
   if (user.is_admin || Number(user.id) === Number(senderId)) return { ok: true };
   return { ok: false, status: 403, error: 'Sender only' };
 }
 
-/** POST /flats/:id/messages（ログイン必須 / 誰でも送信可 / createdAt=NOW()） */
+/** POST /flats/:id/messages */
 router.post('/flats/:id/messages', requireAuth, async (req, res) => {
   try {
     const flatId = Number(req.params.id);
@@ -27,7 +27,7 @@ router.post('/flats/:id/messages', requireAuth, async (req, res) => {
     if (!flatId) return res.status(400).json({ ok:false, error:'Invalid flat id' });
     if (!content || !String(content).trim()) return res.status(400).json({ ok:false, error:'content is required' });
 
-    // Flat 存在確認
+    // Flat
     const [exists] = await pool.query('SELECT id FROM flat_table WHERE id = ? LIMIT 1', [flatId]);
     if (exists.length === 0) return res.status(404).json({ ok:false, error:'Flat not found' });
 
@@ -48,7 +48,7 @@ router.post('/flats/:id/messages', requireAuth, async (req, res) => {
   }
 });
 
-/** GET /flats/:id/messages（オーナー or admin） */
+/** GET /flats/:id/messages */
 router.get('/flats/:id/messages', requireAuth, async (req, res) => {
   try {
     const flatId = Number(req.params.id);
@@ -70,7 +70,7 @@ router.get('/flats/:id/messages', requireAuth, async (req, res) => {
   }
 });
 
-/** GET /flats/:id/messages/:senderId（送信者本人 or admin） */
+/** GET /flats/:id/messages/:senderId */
 router.get('/flats/:id/messages/:senderId', requireAuth, async (req, res) => {
   try {
     const flatId = Number(req.params.id);
